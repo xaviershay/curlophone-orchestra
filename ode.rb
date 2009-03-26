@@ -107,13 +107,11 @@ part_index = 0
 musicians.each_with_index do |muso, muso_index|
   part = parts[muso_index % parts.length]
   if part.volume
-    puts ["Volume", muso_index, part.volume].inspect
     fork do
       `wget -q -O- #{muso.target}:#{muso.port}/volume/#{part.volume}`
     end
   end
   if part.channel
-    puts ["Channel", muso_index, part.channel].inspect
     fork do
       `wget -q -O- #{muso.target}:#{muso.port}/channel/#{part.channel}`
     end
