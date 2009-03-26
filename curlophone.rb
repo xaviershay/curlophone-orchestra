@@ -23,6 +23,7 @@ class Curlophone
       @volume = req.path_info[/\/volume\/(\d+)/, 1].to_i
     elsif req.path_info =~ /\/channel\/\d+/
       @channel = req.path_info[/\/channel\/(\d+)/, 1].to_i
+      puts "Channel: #{@channel}"
     else
       note_with_octave, duration = req.path_info[1..-1].split('/')
       duration ||= 3

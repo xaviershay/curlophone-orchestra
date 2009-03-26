@@ -86,6 +86,13 @@ drums = Part.new(:channel => 9, :notes => %w(
   C,, - D,, - C,, - D,, - C,, - D,, - C,, - D,, - 
   C,, - D,, - C,, - D,, - C,, - D,, - A, - - - 
 ))
+
+disco_drums = Part.new(:channel => 9, :notes => %w(
+  C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, 
+  C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, D,,
+  C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, 
+  C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, C,, Fs,, D,, Fs,, A, - - -
+))
   
 parts = [notes, harmony, bass, contra, drums]
 part_index = 0
@@ -112,7 +119,7 @@ end
     next if note == '-' 
 
     octave = 4 - note.gsub(/[^,]/, '').size + note.gsub(/[^']/, '').size
-    pitch = note.gsub(/[^A-Z]/, '')
+    pitch = note.gsub(/[^A-Za-z]/, '')
     duration = note.gsub(/[^0-9]/, '').to_i
     duration = 4 if duration == 0
 
