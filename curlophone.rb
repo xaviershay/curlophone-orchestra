@@ -24,15 +24,17 @@ class Curlophone
     elsif req.path_info =~ /\/channel\/\d+/
       @channel = req.path_info[/\/channel\/(\d+)/, 1].to_i
     else
-      note_with_octave = req.path_info[1..-1]
+      note_with_octave, duration = req.path_info[1..-1].split('/')
+      duration ||= 3
+      
       if MIDIator::Notes.const_defined?(note_with_octave)
         note = MIDIator::Notes.const_get(note_with_octave)
       else
         note = MiddleC
       end
     end
-    puts [@channel, note].inspect
-    @midi.play note, 0.3, @channel, @volume
+    #puts [@channel, note, duration].inspect
+    @midi.play note, duration.to_i * 0.1, @channel, @volume
 
     Rack::Response.new.finish do |res|
       res.write("Curlophone!")

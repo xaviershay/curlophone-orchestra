@@ -59,25 +59,25 @@ class Part
   end
 end
 notes = Part.new(:notes => %w(
-  E - E - F - G - G - F - E - D - C - C - D - E - E - - D D - - -
-  E - E - F - G - G - F - E - D - C - C - D - E - D - - C C - - -
+  E - E - F - G - G - F - E - D - C - C - D - E - E - - D D6 - - -
+  E - E - F - G - G - F - E - D - C - C - D - E - D - - C C6 - - -
 ))
 
 harmony = Part.new(:notes => %w(
-  C - C - D - E - E - D - C - B, - A, - A, - B, - C - C - - - B, - - -
-  C - C - D - E - E - D - C - B, - A, - A, - B, - C - B, - - - G, - - -
+  C - C - D - E - E - D - C - B, - A, - A, - B, - C - C - - B, B,6 - - -
+  C - C - D - E - E - D - C - B, - A, - A, - B, - C - B, - - G, G,6 - - -
 ))
 
 bass = Part.new(:notes => %w(
-  C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - C,, - - - G,, - - -
-  C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - G,, - - - C,, - - -
+  C,,10 - - - - - - - C,,10 - - - - - - - F,,10 - - - - - - - C,,10 - - - G,,6 - - -
+  C,,10 - - - - - - - C,,10 - - - - - - - F,,10 - - - - - - - G,,10 - - - C,,6 - - -
 ))
 
 contra = Part.new(:volume => 65, :notes => %w(
   C' B C' G A B C' E'      G' A' G' F' E' D' C' G
   C' D' C' E' D' F' E' G'  F' G' E' D' C G A B
   C' B C' G A B C' E'      G' A' G' F' E' D' C' G
-  C' D' C' E' D' F' E' G'  F' G' E' D' C - - -
+  C' D' C' E' D' F' E' G'  F' G' E' D' E'6 - - -
 ))
 
 drums = Part.new(:channel => 9, :notes => %w(
@@ -113,10 +113,12 @@ end
 
     octave = 4 - note.gsub(/[^,]/, '').size + note.gsub(/[^']/, '').size
     pitch = note.gsub(/[^A-Z]/, '')
+    duration = note.gsub(/[^0-9]/, '').to_i
+    duration = 4 if duration == 0
 
     #puts "#{pitch}#{octave}"
     fork do
-      `wget -q -O- #{muso.target}:#{muso.port}/#{pitch}#{octave}`
+      `wget -q -O- #{muso.target}:#{muso.port}/#{pitch}#{octave}/#{duration}`
     end
   end
   sleep 0.2
