@@ -1,0 +1,11 @@
+You need these gems
+  midiator
+  rack
+  mongrel
+  dnssd
+
+# Musician
+$ ruby curlophone 4000
+
+# Conductor
+$ ruby ode.rb
