@@ -38,41 +38,77 @@ end
 musicians = musicians.to_a
 puts "#{musicians.size} musicians are present. Time to \\m/"
 
-notes = %w(
+
+class Part
+  attr_accessor :options
+
+  def initialize(options)
+    self.options = options
+  end
+
+  def notes
+    options[:notes]
+  end
+
+  def volume
+    options[:volume]
+  end
+
+  def channel
+    options[:channel]
+  end
+end
+notes = Part.new(:notes => %w(
   E - E - F - G - G - F - E - D - C - C - D - E - E - - D D - - -
   E - E - F - G - G - F - E - D - C - C - D - E - D - - C C - - -
-)
+))
 
-harmony = %w(
+harmony = Part.new(:notes => %w(
   C - C - D - E - E - D - C - B, - A, - A, - B, - C - C - - - B, - - -
   C - C - D - E - E - D - C - B, - A, - A, - B, - C - B, - - - G, - - -
-)
+))
 
-bass = %w(
+bass = Part.new(:notes => %w(
   C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - C,, - - - G,, - - -
   C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - G,, - - - C,, - - -
-)
+))
 
-contra = %w(
+contra = Part.new(:volume => 65, :notes => %w(
   C' B C' G A B C' E'      G' A' G' F' E' D' C' G
   C' D' C' E' D' F' E' G'  F' G' E' D' C G A B
   C' B C' G A B C' E'      G' A' G' F' E' D' C' G
   C' D' C' E' D' F' E' G'  F' G' E' D' C - - -
-)
-parts = [notes, harmony, bass, contra]
+))
+
+drums = Part.new(:channel => 9, :notes => %w(
+  C,, - D,, - C,, - D,, - C,, - D,, - C,, - D,, - 
+  C,, - D,, - C,, - D,, - C,, - D,, - C,, - D,, D,,
+  C,, - D,, - C,, - D,, - C,, - D,, - C,, - D,, - 
+  C,, - D,, - C,, - D,, - C,, - D,, - A, - - - 
+))
+  
+parts = [notes, harmony, bass, contra, drums]
 part_index = 0
 
 # Setup volumes
 musicians.each_with_index do |muso, muso_index|
-  if (muso_index + 1) % 4 == 0
+  part = parts[muso_index % parts.length]
+  if part.volume
+    puts ["Volume", muso_index, part.volume].inspect
     fork do
-      `wget -q -O- #{muso.target}:#{muso.port}/volume/70`
+      `wget -q -O- #{muso.target}:#{muso.port}/volume/#{part.volume}`
+    end
+  end
+  if part.channel
+    puts ["Channel", muso_index, part.channel].inspect
+    fork do
+      `wget -q -O- #{muso.target}:#{muso.port}/channel/#{part.channel}`
     end
   end
 end
-(0..notes.length-1).each do |note_index|
+(0..notes.notes.length-1).each do |note_index|
   musicians.each_with_index do |muso, muso_index|
-    note = parts[muso_index % parts.length][note_index]
+    note = parts[muso_index % parts.length].notes[note_index]
     next if note == '-' 
 
     octave = 4 - note.gsub(/[^,]/, '').size + note.gsub(/[^']/, '').size

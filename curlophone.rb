@@ -10,6 +10,7 @@ class Curlophone
   def initialize
     @midi = MIDIator::Interface.new
     @midi.use :dls_synth
+    @channel = 0
     @volume = 100
   end
 
@@ -20,6 +21,8 @@ class Curlophone
       note = MiddleC
     elsif req.path_info =~ /\/volume\/\d+/
       @volume = req.path_info[/\/volume\/(\d+)/, 1].to_i
+    elsif req.path_info =~ /\/channel\/\d+/
+      @channel = req.path_info[/\/channel\/(\d+)/, 1].to_i
     else
       note_with_octave = req.path_info[1..-1]
       if MIDIator::Notes.const_defined?(note_with_octave)
@@ -28,7 +31,8 @@ class Curlophone
         note = MiddleC
       end
     end
-    @midi.play note, 0.3, 0, @volume
+    puts [@channel, note].inspect
+    @midi.play note, 0.3, @channel, @volume
 
     Rack::Response.new.finish do |res|
       res.write("Curlophone!")
