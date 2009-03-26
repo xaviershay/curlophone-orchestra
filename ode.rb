@@ -42,8 +42,8 @@ musicians.each do |muso|
 end
 
 puts
-puts "Time to \\m/"
-
+puts "1, 2, 3, 4"
+puts
 
 class Part
   attr_accessor :options
@@ -135,3 +135,6 @@ end
   sleep 0.2
 end
 sleep 0.5
+puts "*bows*"
+sleep 1
+puts "*bows*"
