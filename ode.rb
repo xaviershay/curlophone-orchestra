@@ -1,7 +1,44 @@
 require 'midiator'
 require 'net/http'
+require 'dnssd'
+require 'set'
 
-musicians = ['localhost:4565', 'localhost:4567', 'localhost:4568', 'localhost:4569']
+musicians = Set.new #['localhost:4000'] #, 'localhost:4001', 'localhost:4002']
+
+class Service < Struct.new(:name, :target, :port, :description)
+end
+
+def discover(timeout=1)
+  waiting_thread = Thread.current
+
+  dns = DNSSD.browse "_http._tcp" do |reply|
+    DNSSD.resolve reply.name, reply.type, reply.domain do |resolve_reply|
+      puts resolve_reply.text_record.inspect
+      puts reply.inspect
+      if resolve_reply.text_record['curlophone']
+        service = Service.new(reply.name,
+                                 resolve_reply.target,
+                                 resolve_reply.port,
+                                 resolve_reply.text_record['description'].to_s)
+        begin
+          yield service
+        rescue Done
+          waiting_thread.run
+        end
+      end
+    end
+  end
+
+  puts "Gathering for up to #{timeout} seconds..."
+  sleep timeout
+  dns.stop
+end
+
+discover do |service|
+  musicians << service
+end
+musicians = musicians.to_a
+puts musicians.inspect
 
 notes = %w(
   E - E - F - G - G - F - E - D - C - C - D - E - E - - D D - - -
@@ -27,10 +64,9 @@ contra = %w(
 parts = [notes, harmony, bass, contra]
 part_index = 0
 
-musicians.collect! do |muso|
-  tokens = muso.split(':')
-  Net::HTTP.new(tokens[0], tokens[1])
-end
+#musicians.collect! do |muso|
+#  Net::HTTP.new(muso.target, muso.port)
+#end
 (0..notes.length-1).each do |note_index|
   musicians.each_with_index do |muso, muso_index|
     note = parts[muso_index % parts.length][note_index]
@@ -40,7 +76,10 @@ end
     pitch = note.gsub(/[^A-Z]/, '')
 
     puts "#{pitch}#{octave}"
-    muso.get("/#{pitch}#{octave}")
+    fork do
+      `curl #{muso.target}:#{muso.port}/#{pitch}#{octave} &`
+    end
+    #muso.get("/#{pitch}#{octave}")
   end
-  sleep 0.3
+  sleep 0.2
 end
