@@ -36,7 +36,13 @@ discover do |service|
   musicians << service
 end
 musicians = musicians.to_a
-puts "#{musicians.size} musicians are present. Time to \\m/"
+puts "#{musicians.size} musicians are present:"
+musicians.each do |muso|
+  puts "  #{muso.target}"
+end
+
+puts
+puts "Time to \\m/"
 
 
 class Part
@@ -121,7 +127,7 @@ end
     octave = 4 - note.gsub(/[^,]/, '').size + note.gsub(/[^']/, '').size
     pitch = note.gsub(/[^A-Za-z]/, '')
     duration = note.gsub(/[^0-9]/, '').to_i
-    duration = 4 if duration == 0
+    duration = 3 if duration == 0
 
     #puts "#{pitch}#{octave}"
     fork do
