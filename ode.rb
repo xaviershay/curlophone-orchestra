@@ -13,8 +13,6 @@ def discover(timeout=1)
 
   dns = DNSSD.browse "_http._tcp" do |reply|
     DNSSD.resolve reply.name, reply.type, reply.domain do |resolve_reply|
-      puts resolve_reply.text_record.inspect
-      puts reply.inspect
       if resolve_reply.text_record['curlophone']
         service = Service.new(reply.name,
                                  resolve_reply.target,
@@ -29,7 +27,7 @@ def discover(timeout=1)
     end
   end
 
-  puts "Gathering for up to #{timeout} seconds..."
+  puts "Cattle call, who will play my tune? Starting in #{timeout} seconds..."
   sleep timeout
   dns.stop
 end
@@ -38,7 +36,7 @@ discover do |service|
   musicians << service
 end
 musicians = musicians.to_a
-puts musicians.inspect
+puts "#{musicians.size} musicians are present. Time to \\m/"
 
 notes = %w(
   E - E - F - G - G - F - E - D - C - C - D - E - E - - D D - - -
@@ -46,13 +44,13 @@ notes = %w(
 )
 
 harmony = %w(
-  C - C - D - E - E - D - C - B, - A, - A, - B, - C - C - - B, B, - - -
-  C - C - D - E - E - D - C - B, - A, - A, - B, - C - B, - - A, G, - - -
+  C - C - D - E - E - D - C - B, - A, - A, - B, - C - C - - - B, - - -
+  C - C - D - E - E - D - C - B, - A, - A, - B, - C - B, - - - G, - - -
 )
 
 bass = %w(
-  C,, - - - - - - - G,, - - - - - - - C,, - - - - - - - G,, - - - - - - -
-  C,, - - - - - - - G,, - - - - - - - C,, - - - - - - - G,, - - C,, C,, - - -
+  C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - C,, - - - G,, - - -
+  C,, - - - - - - - C,, - - - - - - - F,, - - - - - - - G,, - - - C,, - - -
 )
 
 contra = %w(
@@ -64,9 +62,14 @@ contra = %w(
 parts = [notes, harmony, bass, contra]
 part_index = 0
 
-#musicians.collect! do |muso|
-#  Net::HTTP.new(muso.target, muso.port)
-#end
+# Setup volumes
+musicians.each_with_index do |muso, muso_index|
+  if (muso_index + 1) % 4 == 0
+    fork do
+      `wget -q -O- #{muso.target}:#{muso.port}/volume/70`
+    end
+  end
+end
 (0..notes.length-1).each do |note_index|
   musicians.each_with_index do |muso, muso_index|
     note = parts[muso_index % parts.length][note_index]
@@ -75,11 +78,11 @@ part_index = 0
     octave = 4 - note.gsub(/[^,]/, '').size + note.gsub(/[^']/, '').size
     pitch = note.gsub(/[^A-Z]/, '')
 
-    puts "#{pitch}#{octave}"
+    #puts "#{pitch}#{octave}"
     fork do
-      `curl #{muso.target}:#{muso.port}/#{pitch}#{octave} &`
+      `wget -q -O- #{muso.target}:#{muso.port}/#{pitch}#{octave}`
     end
-    #muso.get("/#{pitch}#{octave}")
   end
   sleep 0.2
 end
+sleep 0.5
