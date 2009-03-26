@@ -13,11 +13,12 @@
                                                   
                      Cooked up for the Iron Hacks challenge at
                                          Melbourne Ruby, 26th March 2009
+                                       where it won first prize!
 
 ===
 = The setup
 
-You need these gems (served on my gemjour)
+You need these gems
   midiator
   rack
   mongrel
@@ -29,8 +30,8 @@ $ export RUBYOPT=rrubygems
 ===
 = The performance
 
-$ ruby curlophone.rb 4000 # Musician - at least 5 recommended!
-$ ruby ode.rb             # Conductor - just the one
+$ ruby curlophone.rb # Musician - at least 5 recommended!
+$ ruby ode.rb        # Conductor - just the one
 
 ===
 = Did you know?

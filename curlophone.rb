@@ -43,18 +43,18 @@ class Curlophone
   end
 end
 
+port = (ARGV[0] || 4321).to_i
+
 unless Kernel.const_defined?("DNSSD_BROADCAST")
   tr = DNSSD::TextRecord.new
   tr['description'] = "Curlophone!"
   tr['curlophone'] = 'true' # distinguish from other servers
 
   name = 'curlophone'
-  port = ARGV[0].to_i
-  puts port
   DNSSD.register(name, "_http._tcp", 'local', port, tr.encode) do |rr|
-    puts "Registered #{name} on port #{port}. Starting service."
+    puts "Curlophone in tune, listening on port #{port}"
   end
   DNSSD_BROADCAST = true
 end
 
-Rack::Handler::Mongrel.run(Curlophone.new, :Port => ARGV[0] || 2000)
+Rack::Handler::Mongrel.run(Curlophone.new, :Port => port)
