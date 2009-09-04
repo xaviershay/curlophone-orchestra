@@ -24,9 +24,6 @@ You need these gems
   mongrel
   dnssd
 
-# If you haven't already...
-$ export RUBYOPT=rrubygems
-
 ===
 = The performance
 

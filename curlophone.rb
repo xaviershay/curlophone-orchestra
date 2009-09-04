@@ -1,8 +1,8 @@
+require 'rubygems'
 require 'rack'
 require 'midiator'
 require 'mongrel'
 require 'dnssd'
-
 
 class Curlophone
   include MIDIator::Notes
@@ -46,12 +46,7 @@ end
 port = (ARGV[0] || 4321).to_i
 
 unless Kernel.const_defined?("DNSSD_BROADCAST")
-  tr = DNSSD::TextRecord.new
-  tr['description'] = "Curlophone!"
-  tr['curlophone'] = 'true' # distinguish from other servers
-
-  name = 'curlophone'
-  DNSSD.register(name, "_http._tcp", 'local', port, tr.encode) do |rr|
+  DNSSD.register('curlophone', "_curlophone._tcp", 'local', port) do |rr|
     puts "Curlophone in tune, listening on port #{port}"
   end
   DNSSD_BROADCAST = true

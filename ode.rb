@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'midiator'
 require 'net/http'
 require 'dnssd'
@@ -11,18 +12,16 @@ end
 def discover(timeout=1)
   waiting_thread = Thread.current
 
-  dns = DNSSD.browse "_http._tcp" do |reply|
+  dns = DNSSD.browse "_curlophone._tcp" do |reply|
     DNSSD.resolve reply.name, reply.type, reply.domain do |resolve_reply|
-      if resolve_reply.text_record['curlophone']
-        service = Service.new(reply.name,
-                                 resolve_reply.target,
-                                 resolve_reply.port,
-                                 resolve_reply.text_record['description'].to_s)
-        begin
-          yield service
-        rescue Done
-          waiting_thread.run
-        end
+      service = Service.new(reply.name,
+                               resolve_reply.target,
+                               resolve_reply.port,
+                               "Curlophone!")
+      begin
+        yield service
+      rescue Done
+        waiting_thread.run
       end
     end
   end
